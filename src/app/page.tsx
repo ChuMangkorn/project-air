@@ -13,6 +13,8 @@ import MarketStats from '@/components/ui/MarketStats';
 import DarkModeToggle from '@/components/ui/DarkModeToggle';
 import SkeletonCard from '@/components/ui/SkeletonCard';
 import MarketOverviewRealtime from '@/components/MarketOverviewRealtime';
+import OrderBookRealtime from '@/components/OrderBookRealtime';
+import TradesRealtime from '@/components/TradesRealtime';
 
 const POPULAR_SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT'];
 
@@ -29,6 +31,10 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-4 md:py-8">
         <MarketOverviewRealtime />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <OrderBookRealtime symbol="BTCUSDT" />
+        <TradesRealtime symbol="BTCUSDT" />
+      </div>
         {/* Header - Responsive */}
         <header className={`mb-6 md:mb-8 ${isMobile ? 'text-center' : 'flex items-center justify-between'}`}>
           <div className={isMobile ? 'mb-4' : ''}>
