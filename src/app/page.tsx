@@ -15,6 +15,7 @@ import SkeletonCard from '@/components/ui/SkeletonCard';
 import MarketOverviewRealtime from '@/components/MarketOverviewRealtime';
 import OrderBookRealtime from '@/components/OrderBookRealtime';
 import TradesRealtime from '@/components/TradesRealtime';
+import TickerRealtime from '@/components/TickerRealtime';
 
 const POPULAR_SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT'];
 
@@ -31,7 +32,9 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-4 md:py-8">
         <MarketOverviewRealtime />
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          <TickerRealtime />
         <OrderBookRealtime symbol="BTCUSDT" />
         <TradesRealtime symbol="BTCUSDT" />
       </div>
