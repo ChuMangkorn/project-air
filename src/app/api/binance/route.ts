@@ -5,7 +5,11 @@ export async function GET() {
   try {
     console.log('🔄 API Route: Fetching from Binance...');
 
+<<<<<<< HEAD
     const response = await fetch('https://data.binance/api/v3/ticker/24hr', {
+=======
+    const response = await fetch('https://data-api.binance.vision/api/v3/ticker/24hr', {
+>>>>>>> d3cc3af (fix: change api.binance to data.binance)
       method: 'GET',
       headers: {
         'Accept': 'application/json',
