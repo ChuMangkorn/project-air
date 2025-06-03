@@ -1,3 +1,4 @@
+// src/components/ui/PriceChart.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -15,10 +16,25 @@ interface PriceChartProps {
   symbol: string;
 }
 
+// เพิ่ม type definition สำหรับ Binance API response
+type BinanceKlineItem = [
+  number,  // Open time
+  string,  // Open price
+  string,  // High price
+  string,  // Low price
+  string,  // Close price
+  string,  // Volume
+  number,  // Close time
+  string,  // Quote asset volume
+  number,  // Number of trades
+  string,  // Taker buy base asset volume
+  string,  // Taker buy quote asset volume
+  string   // Ignore
+];
+
 const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
   const [klineData, setKlineData] = useState<KlineData[]>([]);
   const [loading, setLoading] = useState(true);
-  // เปลี่ยนจาก interval เป็น timeInterval
   const [timeInterval, setTimeInterval] = useState('1h');
 
   useEffect(() => {
@@ -28,9 +44,10 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
         const response = await fetch(
           `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${timeInterval}&limit=24`
         );
-        const data = await response.json();
-
-        const formattedData: KlineData[] = data.map((item: [number, string, string, string, string, string, number, string, number, string, string, string]) => ({
+        const data: BinanceKlineItem[] = await response.json();
+        
+        // แก้ไขบรรทัดที่ 33 - เปลี่ยนจาก any[] เป็น BinanceKlineItem
+        const formattedData: KlineData[] = data.map((item: BinanceKlineItem) => ({
           openTime: item[0],
           open: item[1],
           high: item[2],
@@ -38,7 +55,7 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
           close: item[4],
           volume: item[5],
         }));
-
+        
         setKlineData(formattedData);
         setLoading(false);
       } catch (error) {
@@ -48,34 +65,32 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
     };
 
     fetchKlineData();
-    // ใช้ window.setInterval เพื่อให้ชัดเจนว่าเรียกฟังก์ชันจาก global scope
     const intervalId = window.setInterval(fetchKlineData, 60000);
 
-    // แก้ไขการ cleanup
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [symbol, timeInterval]); // เปลี่ยน interval เป็น timeInterval
+  }, [symbol, timeInterval]);
 
-  // แก้ไขการคำนวณ maxPrice และ minPrice
-  const maxPrice = klineData.length > 0
+  // ส่วนที่เหลือของ component...
+  const maxPrice = klineData.length > 0 
     ? Math.max(...klineData.map(d => parseFloat(d.high)))
     : 0;
-  const minPrice = klineData.length > 0
+  const minPrice = klineData.length > 0 
     ? Math.min(...klineData.map(d => parseFloat(d.low)))
     : 0;
   const priceRange = maxPrice - minPrice || 1;
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
+    <div className="bg-card text-card-foreground rounded-lg shadow-lg p-6 border border-border">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-lg font-semibold">
           {symbol} Price Chart
         </h3>
         <select
           value={timeInterval}
           onChange={(e) => setTimeInterval(e.target.value)}
-          className="px-3 py-1 border border-gray-300 rounded text-sm"
+          className="px-3 py-1 bg-card text-card-foreground border border-border rounded text-sm"
         >
           <option value="1m">1m</option>
           <option value="5m">5m</option>
@@ -88,11 +103,11 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
 
       {loading ? (
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : klineData.length === 0 ? (
         <div className="flex items-center justify-center h-64">
-          <p className="text-gray-500">No data available</p>
+          <p className="text-muted-foreground">No data available</p>
         </div>
       ) : (
         <div className="h-64 flex items-end space-x-1">
@@ -101,24 +116,24 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
             const close = parseFloat(candle.close);
             const high = parseFloat(candle.high);
             const low = parseFloat(candle.low);
-
+            
             const isGreen = close > open;
             const bodyHeight = Math.abs(close - open) / priceRange * 200;
             const wickTop = (high - Math.max(open, close)) / priceRange * 200;
             const wickBottom = (Math.min(open, close) - low) / priceRange * 200;
-
+            
             return (
               <div key={index} className="flex flex-col items-center" style={{ width: '100%' }}>
-                <div
-                  className="w-0.5 bg-gray-400"
+                <div 
+                  className="w-0.5 bg-muted-foreground"
                   style={{ height: `${Math.max(wickTop, 0)}px` }}
                 />
                 <div
                   className={`w-3 ${isGreen ? 'bg-green-500' : 'bg-red-500'}`}
                   style={{ height: `${Math.max(bodyHeight, 1)}px` }}
                 />
-                <div
-                  className="w-0.5 bg-gray-400"
+                <div 
+                  className="w-0.5 bg-muted-foreground"
                   style={{ height: `${Math.max(wickBottom, 0)}px` }}
                 />
               </div>
