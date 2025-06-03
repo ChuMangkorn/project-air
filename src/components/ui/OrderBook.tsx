@@ -50,30 +50,30 @@ const OrderBook: React.FC<OrderBookProps> = ({ symbol }) => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Book</h3>
+      <div className="bg-card text-card-foreground rounded-lg shadow-lg p-6 border border-border">
+        <h3 className="text-lg font-semibold  mb-4">Order Book</h3>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+    <div className="bg-card text-card-foreground rounded-lg shadow-lg p-6 border border-border">
+      <h3 className="text-lg font-semibold mb-4">
         Order Book - {symbol}
       </h3>
       
       <div className="grid grid-cols-2 gap-4">
         {/* Asks (Sell Orders) */}
         <div>
-          <h4 className="text-sm font-medium text-red-600 mb-2">Asks (Sell)</h4>
+          <h4 className="text-sm font-medium text-red-600 dark:text-red-400 mb-2">Asks (Sell)</h4>
           <div className="space-y-1">
             {orderBook.asks.slice().reverse().map((ask, index) => (
               <div key={index} className="flex justify-between text-xs">
-                <span className="text-red-600 font-mono">${formatPrice(ask.price)}</span>
-                <span className="text-gray-600 font-mono">{formatQuantity(ask.quantity)}</span>
+                <span className="text-red-600 dark:text-red-400 font-mono">${formatPrice(ask.price)}</span>
+                <span className="text-muted-foreground font-mono">{formatQuantity(ask.quantity)}</span>
               </div>
             ))}
           </div>
@@ -81,12 +81,12 @@ const OrderBook: React.FC<OrderBookProps> = ({ symbol }) => {
 
         {/* Bids (Buy Orders) */}
         <div>
-          <h4 className="text-sm font-medium text-green-600 mb-2">Bids (Buy)</h4>
+          <h4 className="text-sm font-medium text-green-600 dark:text-green-400 mb-2">Bids (Buy)</h4>
           <div className="space-y-1">
             {orderBook.bids.map((bid, index) => (
               <div key={index} className="flex justify-between text-xs">
-                <span className="text-green-600 font-mono">${formatPrice(bid.price)}</span>
-                <span className="text-gray-600 font-mono">{formatQuantity(bid.quantity)}</span>
+                <span className="text-green-600 dark:text-green-400 font-mono">${formatPrice(bid.price)}</span>
+                <span className="text-muted-foreground font-mono">{formatQuantity(bid.quantity)}</span>
               </div>
             ))}
           </div>

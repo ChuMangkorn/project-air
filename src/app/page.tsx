@@ -1,58 +1,51 @@
+// src/app/page.tsx
 'use client';
 
 import { useState } from 'react';
 import { useBinanceWebSocket } from '@/hooks/useBinanceWebSocket';
 import { useBinanceTicker } from '@/hooks/useBinanceTicker';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import TradeList from '@/components/ui/TradeList';
 import TickerCard from '@/components/TickerCard';
 import PriceChart from '@/components/ui/PriceChart';
 import OrderBook from '@/components/ui/OrderBook';
 import MarketStats from '@/components/ui/MarketStats';
 import DarkModeToggle from '@/components/ui/DarkModeToggle';
+import SkeletonCard from '@/components/ui/SkeletonCard';
 
 const POPULAR_SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT'];
 
 export default function Home() {
   const [selectedSymbol, setSelectedSymbol] = useState('BTCUSDT');
-  
-  const { tickers, loading, error: tickerError } = useBinanceTicker(POPULAR_SYMBOLS);
   const { trades, isConnected, error, reconnect } = useBinanceWebSocket(selectedSymbol);
+  const { tickers, loading, error: tickerError } = useBinanceTicker(POPULAR_SYMBOLS);
 
-// ใน JSX
-<TradeList 
-  trades={trades} 
-  isConnected={isConnected} 
-  error={error}
-  onReconnect={reconnect}
-/>
+  // Responsive breakpoints
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isTablet = useMediaQuery('(max-width: 1024px)');
 
-// เพิ่มใน JSX
-{tickerError && (
-  <div className="bg-yellow-500/20 border border-yellow-500/50 text-yellow-400 px-4 py-3 rounded mb-6">
-    ⚠️ {tickerError}
-  </div>
-)}
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="container mx-auto px-4 py-8">
-        <header className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">
+      <div className="container mx-auto px-4 py-4 md:py-8">
+        {/* Header - Responsive */}
+        <header className={`mb-6 md:mb-8 ${isMobile ? 'text-center' : 'flex items-center justify-between'}`}>
+          <div className={isMobile ? 'mb-4' : ''}>
+            <h1 className={`font-bold mb-2 ${isMobile ? 'text-2xl' : 'text-3xl'}`}>
               Binance Trading Dashboard
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm md:text-base">
               Real-time cryptocurrency trading data
             </p>
           </div>
           <DarkModeToggle />
         </header>
 
-        {/* Market Stats */}
-        <div className="mb-8">
+        {/* Market Stats - Full width on mobile */}
+        <div className="mb-6 md:mb-8">
           <MarketStats />
         </div>
 
-        {/* Symbol Selector */}
+        {/* Symbol Selector - Full width on mobile */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">
             Select Trading Pair:
@@ -60,7 +53,7 @@ export default function Home() {
           <select
             value={selectedSymbol}
             onChange={(e) => setSelectedSymbol(e.target.value)}
-            className="px-3 py-2 bg-card text-card-foreground border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full md:w-auto px-3 py-2 bg-card text-card-foreground border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           >
             {POPULAR_SYMBOLS.map(symbol => (
               <option key={symbol} value={symbol}>
@@ -70,13 +63,18 @@ export default function Home() {
           </select>
         </div>
 
-        {/* Ticker Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        {/* Ticker Cards - Responsive Grid */}
+        <div className={`grid gap-4 mb-6 md:mb-8 ${isMobile
+            ? 'grid-cols-1'
+            : isTablet
+              ? 'grid-cols-2 lg:grid-cols-3'
+              : 'grid-cols-2 lg:grid-cols-5'
+          }`}>
           {loading ? (
-            <div className="col-span-full text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-2 text-muted-foreground">Loading market data...</p>
-            </div>
+            // แสดง Skeleton Cards แทน loading spinner
+            Array.from({ length: 5 }).map((_, index) => (
+              <SkeletonCard key={index} />
+            ))
           ) : (
             tickers.map(ticker => (
               <TickerCard key={ticker.symbol} ticker={ticker} />
@@ -84,21 +82,27 @@ export default function Home() {
           )}
         </div>
 
-        {/* Chart and Order Book */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Chart and Order Book - Stack on mobile */}
+        <div className={`gap-6 mb-6 md:mb-8 ${isMobile ? 'space-y-6' : 'grid grid-cols-1 lg:grid-cols-2'
+          }`}>
           <PriceChart symbol={selectedSymbol} />
           <OrderBook symbol={selectedSymbol} />
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-500/20 border border-red-500/50 text-red-400 px-4 py-3 rounded mb-6">
-            {error}
+        {/* Error Messages */}
+        {(error || tickerError) && (
+          <div className="bg-red-500/20 border border-red-500/50 text-red-400 px-4 py-3 rounded mb-6 text-sm md:text-base">
+            {error || tickerError}
           </div>
         )}
 
         {/* Trade List */}
-        <TradeList trades={trades} isConnected={isConnected} />
+        <TradeList
+          trades={trades}
+          isConnected={isConnected}
+          error={error}
+          onReconnect={reconnect}
+        />
       </div>
     </div>
   );

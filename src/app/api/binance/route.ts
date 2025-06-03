@@ -19,7 +19,7 @@ export async function GET() {
     const data = await response.json();
     console.log('✅ API Route: Got data, length:', data.length);
     
-    // Debug: ตรวจสอบ field names ที่ได้จาก API
+    
     if (data.length > 0) {
       console.log('📊 API Route: Sample item fields:', Object.keys(data[0]));
       console.log('📊 API Route: Sample item:', data[0]);
@@ -29,7 +29,7 @@ export async function GET() {
   } catch (error) {
     console.error('❌ API Route Error:', error);
     
-    // Mock data สำหรับ fallback
+    
     const mockData = [
       {
         symbol: 'BTCUSDT',

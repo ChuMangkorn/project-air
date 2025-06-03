@@ -1,4 +1,3 @@
-// src/hooks/useBinanceWebSocket.ts
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { BinanceTradeData, TradeDisplay } from '@/types/binance';
 
@@ -13,7 +12,7 @@ export const useBinanceWebSocket = (symbol: string = 'btcusdt') => {
 
   const connectWebSocket = useCallback(() => {
     try {
-      // ปิด connection เก่าถ้ามี
+
       if (wsRef.current) {
         wsRef.current.close();
       }
@@ -23,7 +22,7 @@ export const useBinanceWebSocket = (symbol: string = 'btcusdt') => {
       const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@trade`);
       wsRef.current = ws;
 
-      // ตั้ง timeout สำหรับ connection
+
       const connectionTimeout = setTimeout(() => {
         if (ws.readyState === WebSocket.CONNECTING) {
           console.warn('⏰ WebSocket connection timeout');

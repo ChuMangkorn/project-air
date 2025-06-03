@@ -32,7 +32,7 @@ export const useBinanceTicker = (symbols: string[] = ['BTCUSDT', 'ETHUSDT', 'BNB
           const ticker = data.find(item => item.symbol === symbol);
           
           if (ticker) {
-            // แปลง lastPrice เป็น price เพื่อ backward compatibility
+            
             const normalizedTicker: TickerDataNormalized = {
               symbol: ticker.symbol,
               price: ticker.lastPrice || '0',  // ใช้ lastPrice แทน price
