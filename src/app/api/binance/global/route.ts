@@ -6,13 +6,8 @@ export async function GET() {
 
     // เรียก API หลายตัวพร้อมกัน
     const [tickerResponse, btcResponse] = await Promise.all([
-<<<<<<< HEAD
-      fetch('https://data.binance/api/v3/ticker/24hr'),
-      fetch('https://data.binance/api/v3/ticker/price?symbol=BTCUSDT')
-=======
       fetch('https://data-api.binance.vision/api/v3/ticker/24hr'),
       fetch('https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT')
->>>>>>> d3cc3af (fix: change api.binance to data.binance)
     ]);
 
     if (!tickerResponse.ok || !btcResponse.ok) {
