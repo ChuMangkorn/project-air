@@ -6,8 +6,8 @@ export async function GET() {
     
     // เรียก API หลายตัวพร้อมกัน
     const [tickerResponse, btcResponse] = await Promise.all([
-      fetch('https://api.binance.com/api/v3/ticker/24hr'),
-      fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
+      fetch('https://data.binance/api/v3/ticker/24hr'),
+      fetch('https://data.binance/api/v3/ticker/price?symbol=BTCUSDT')
     ]);
 
     if (!tickerResponse.ok || !btcResponse.ok) {

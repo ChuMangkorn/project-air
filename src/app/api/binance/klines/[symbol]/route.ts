@@ -14,7 +14,7 @@ export async function GET(
     console.log(`🔄 Fetching klines for ${symbol} ${interval}...`);
     
     const response = await fetch(
-      `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,
+      `https://data.binance/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,
       {
         method: 'GET',
         headers: {

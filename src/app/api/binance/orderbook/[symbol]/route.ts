@@ -10,7 +10,7 @@ export async function GET(
     console.log(`🔄 Fetching order book for ${symbol}...`);
     
     const response = await fetch(
-      `https://api.binance.com/api/v3/depth?symbol=${symbol}&limit=20`,
+      `https://data.binance/api/v3/depth?symbol=${symbol}&limit=20`,
       {
         method: 'GET',
         headers: {
