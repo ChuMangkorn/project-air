@@ -4,12 +4,13 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     console.log('🔄 API Route: Fetching from Binance...');
-    
+
     const response = await fetch('https://api.binance.com/api/v3/ticker/24hr', {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
       },
+      cache: 'no-store'
     });
 
     if (!response.ok) {
@@ -17,36 +18,19 @@ export async function GET() {
     }
 
     const data = await response.json();
-    console.log('✅ API Route: Got data, length:', data.length);
-    
-    
-    if (data.length > 0) {
-      console.log('📊 API Route: Sample item fields:', Object.keys(data[0]));
-      console.log('📊 API Route: Sample item:', data[0]);
-    }
-    
-    return NextResponse.json(data);
-  } catch (error) {
-    console.error('❌ API Route Error:', error);
-    
-    
-    const mockData = [
-      {
-        symbol: 'BTCUSDT',
-        lastPrice: '67234.50',
-        priceChange: '1234.50',
-        priceChangePercent: '1.87',
-        volume: '28456.789'
+    console.log('✅ Real-time data fetched:', data.length, 'symbols');
+
+
+    return NextResponse.json(data, {
+      headers: {
+        'Cache-Control': 'no-store, max-age=0',
       },
-      {
-        symbol: 'ETHUSDT',
-        lastPrice: '3456.78',
-        priceChange: '-45.23',
-        priceChangePercent: '-1.29',
-        volume: '156789.123'
-      }
-    ];
-    
-    return NextResponse.json(mockData);
+    });
+  } catch (error) {
+    console.error('❌ Binance API Error:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch real-time data' },
+      { status: 500 }
+    );
   }
 }

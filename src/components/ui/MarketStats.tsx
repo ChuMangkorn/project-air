@@ -6,34 +6,49 @@ interface MarketStatsData {
   totalCoins: number;
   totalMarketCap: number;
   totalVolume24h: number;
+  btcPrice: number;
   btcDominance: number;
 }
 
 const MarketStats: React.FC = () => {
   const [stats, setStats] = useState<MarketStatsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMarketStats = async () => {
       try {
-        // จำลองข้อมูล Market Stats (ในการใช้งานจริงอาจใช้ CoinGecko API)
-        const mockStats: MarketStatsData = {
-          totalCoins: 2847,
-          totalMarketCap: 2340000000000,
-          totalVolume24h: 89500000000,
-          btcDominance: 52.3
-        };
+        console.log('🔄 Fetching real-time market stats...');
+        setError(null);
         
-        setStats(mockStats);
+        const response = await fetch('/api/binance/global', {
+          method: 'GET',
+          cache: 'no-store'
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        
+        console.log('✅ Real-time market stats updated');
+        setStats(data);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching market stats:', error);
+        console.error('❌ Market stats fetch error:', error);
+        setError(`Failed to fetch market stats: ${error}`);
         setLoading(false);
       }
     };
 
     fetchMarketStats();
-    const interval = setInterval(fetchMarketStats, 30000); // Update every 30 seconds
+    // อัพเดททุก 30 วินาที
+    const interval = setInterval(fetchMarketStats, 30000);
 
     return () => clearInterval(interval);
   }, []);
@@ -61,13 +76,22 @@ const MarketStats: React.FC = () => {
 
   return (
     <div className="bg-card text-card-foreground rounded-lg shadow-lg p-6 border border-border">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Market Overview</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold">Market Overview (Real-time)</h3>
+        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+      </div>
+      
+      {error && (
+        <div className="bg-red-500/20 border border-red-500/50 text-red-400 px-3 py-2 rounded mb-4 text-sm">
+          {error}
+        </div>
+      )}
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="text-center">
-          <p className="text-sm text-muted-foreground">Total Market Cap</p>
-          <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
-            {formatNumber(stats.totalMarketCap)}
+          <p className="text-sm text-muted-foreground">BTC Price</p>
+          <p className="text-xl font-bold text-orange-600 dark:text-orange-400">
+            ${stats.btcPrice.toLocaleString()}
           </p>
         </div>
         
@@ -79,7 +103,7 @@ const MarketStats: React.FC = () => {
         </div>
         
         <div className="text-center">
-          <p className="text-sm text-muted-foreground">Total Coins</p>
+          <p className="text-sm text-muted-foreground">Total Pairs</p>
           <p className="text-xl font-bold text-foreground">
             {stats.totalCoins.toLocaleString()}
           </p>
@@ -87,7 +111,7 @@ const MarketStats: React.FC = () => {
         
         <div className="text-center">
           <p className="text-sm text-muted-foreground">BTC Dominance</p>
-          <p className="text-xl font-bold text-orange-600 dark:text-orange-400">
+          <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
             {stats.btcDominance}%
           </p>
         </div>

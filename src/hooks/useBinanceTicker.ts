@@ -1,6 +1,5 @@
-// src/hooks/useBinanceTicker.ts
 import { useState, useEffect } from 'react';
-import { TickerData, TickerDataNormalized } from '@/types/binance';
+import { TickerDataNormalized } from '@/types/binance';
 
 export const useBinanceTicker = (symbols: string[] = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT']) => {
   const [tickers, setTickers] = useState<TickerDataNormalized[]>([]);
@@ -10,88 +9,65 @@ export const useBinanceTicker = (symbols: string[] = ['BTCUSDT', 'ETHUSDT', 'BNB
   useEffect(() => {
     const fetchTickers = async () => {
       try {
-        console.log('🔄 Hook: Fetching data via API route...');
+        console.log('🔄 Fetching real-time ticker data...');
         setError(null);
-        setLoading(true);
-        
-        const response = await fetch('/api/binance');
-        
+
+        const response = await fetch('/api/binance', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+          // ไม่ cache เพื่อให้ได้ข้อมูล real-time
+          cache: 'no-store'
+        });
+
         if (!response.ok) {
-          throw new Error(`API route error! status: ${response.status}`);
+          throw new Error(`API error! status: ${response.status}`);
         }
-        
-        const data: TickerData[] = await response.json();
-        console.log('📊 Hook: Total data received:', data.length);
-        
-        if (data.length > 0) {
-          console.log('📊 Hook: Sample data structure:', Object.keys(data[0]));
-          console.log('📊 Hook: Sample item:', data[0]);
+
+        const data = await response.json();
+
+        // ✅ ตรวจสอบ error อย่างถูกต้อง
+        if (data.error) {
+          throw new Error(data.error);
         }
-        
+
+        // ✅ ตรวจสอบว่า data เป็น array
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid ticker data format');
+        }
+
         const filteredTickers = symbols.map(symbol => {
-          const ticker = data.find(item => item.symbol === symbol);
-          
-          if (ticker) {
-            
-            const normalizedTicker: TickerDataNormalized = {
+          const ticker = data.find((item: any) => item.symbol === symbol);
+
+          if (ticker && ticker.lastPrice) {
+            return {
               symbol: ticker.symbol,
-              price: ticker.lastPrice || '0',  // ใช้ lastPrice แทน price
+              price: ticker.lastPrice,
               priceChange: ticker.priceChange || '0',
               priceChangePercent: ticker.priceChangePercent || '0',
               volume: ticker.volume || '0',
             };
-            
-            console.log(`✅ Hook: Found ${symbol}:`, {
-              lastPrice: ticker.lastPrice,
-              normalizedPrice: normalizedTicker.price
-            });
-            
-            return normalizedTicker;
-          } else {
-            console.warn(`❌ Hook: Not found ${symbol} in API data`);
-            return null;
           }
+          return null;
         }).filter(Boolean) as TickerDataNormalized[];
-        
-        console.log('🎯 Hook: Final filtered tickers count:', filteredTickers.length);
-        
-        if (filteredTickers.length === 0) {
-          throw new Error('No valid tickers found');
-        }
-        
+
+        console.log('✅ Real-time tickers updated:', filteredTickers.length);
         setTickers(filteredTickers);
         setLoading(false);
-        
+
       } catch (error) {
-        console.error('❌ Hook: Error:', error);
-        
-        // Mock data
-        const mockData: TickerDataNormalized[] = [
-          {
-            symbol: 'BTCUSDT',
-            price: '67234.50',
-            priceChange: '1234.50',
-            priceChangePercent: '1.87',
-            volume: '28456.789'
-          },
-          {
-            symbol: 'ETHUSDT',
-            price: '3456.78',
-            priceChange: '-45.23',
-            priceChangePercent: '-1.29',
-            volume: '156789.123'
-          }
-        ];
-        
-        console.log('🔄 Hook: Using mock data');
-        setTickers(mockData);
-        setError('Using mock data - API error');
+        console.error('❌ Ticker fetch error:', error);
+        setError(`Failed to fetch real-time data: ${error}`);
         setLoading(false);
       }
     };
 
+    // เรียกทันที
     fetchTickers();
-    const interval = setInterval(fetchTickers, 30000);
+
+    // อัพเดททุก 5 วินาที สำหรับ real-time
+    const interval = setInterval(fetchTickers, 5000);
 
     return () => clearInterval(interval);
   }, [symbols]);

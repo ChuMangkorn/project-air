@@ -15,20 +15,9 @@ interface PriceChartProps {
   symbol: string;
 }
 
-// เพิ่ม type definition ที่ชัดเจน
-type BinanceKlineResponse = [
-  number,  // Open time
-  string,  // Open price
-  string,  // High price
-  string,  // Low price
-  string,  // Close price
-  string,  // Volume
-  number,  // Close time
-  string,  // Quote asset volume
-  number,  // Number of trades
-  string,  // Taker buy base asset volume
-  string,  // Taker buy quote asset volume
-  string   // Ignore
+type BinanceKlineItem = [
+  number, string, string, string, string, string,
+  number, string, number, string, string, string
 ];
 
 const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
@@ -39,11 +28,24 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
   useEffect(() => {
     const fetchKlineData = async () => {
       try {
+        console.log(`🔄 Fetching real-time klines for ${symbol}...`);
         setLoading(true);
+        
         const response = await fetch(
-          `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${timeInterval}&limit=24`
+          `/api/binance/klines/${symbol}?interval=${timeInterval}&limit=24`,
+          {
+            method: 'GET',
+            cache: 'no-store'
+          }
         );
-        const data: BinanceKlineResponse[] = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: BinanceKlineItem[] = await response.json();
+        if (!Array.isArray(data) || data.length === 0) {
+        throw new Error('No kline data received');
+      }
         
         const formattedData: KlineData[] = data.map((item) => ({
           openTime: item[0],
@@ -53,21 +55,21 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
           close: item[4],
           volume: item[5],
         }));
-        
+        console.log(`✅ Real-time klines for ${symbol}:`, formattedData.length);
         setKlineData(formattedData);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching kline data:', error);
+        console.error('❌ Klines fetch error:', error);
+        setKlineData([]);// รีเซ็ตข้อมูลเมื่อเกิด error
         setLoading(false);
       }
     };
 
     fetchKlineData();
-    const intervalId = window.setInterval(fetchKlineData, 60000);
+    // อัพเดททุก 30 วินาที
+    const intervalId = setInterval(fetchKlineData, 30000);
 
-    return () => {
-      window.clearInterval(intervalId);
-    };
+    return () => clearInterval(intervalId);
   }, [symbol, timeInterval]);
 
   const maxPrice = klineData.length > 0 
@@ -82,7 +84,7 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
     <div className="bg-card text-card-foreground rounded-lg shadow-lg p-6 border border-border">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold">
-          {symbol} Price Chart
+          {symbol} Price Chart (Real-time)
         </h3>
         <select
           value={timeInterval}
@@ -104,7 +106,7 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
         </div>
       ) : klineData.length === 0 ? (
         <div className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">No data available</p>
+          <p className="text-muted-foreground">No real-time data available</p>
         </div>
       ) : (
         <div className="h-64 flex items-end space-x-1">
