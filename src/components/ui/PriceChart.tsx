@@ -29,8 +29,8 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
           `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${timeInterval}&limit=24`
         );
         const data = await response.json();
-        
-        const formattedData: KlineData[] = data.map((item: any[]) => ({
+
+        const formattedData: KlineData[] = data.map((item: [number, string, string, string, string, string, number, string, number, string, string, string]) => ({
           openTime: item[0],
           open: item[1],
           high: item[2],
@@ -38,7 +38,7 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
           close: item[4],
           volume: item[5],
         }));
-        
+
         setKlineData(formattedData);
         setLoading(false);
       } catch (error) {
@@ -58,10 +58,10 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
   }, [symbol, timeInterval]); // เปลี่ยน interval เป็น timeInterval
 
   // แก้ไขการคำนวณ maxPrice และ minPrice
-  const maxPrice = klineData.length > 0 
+  const maxPrice = klineData.length > 0
     ? Math.max(...klineData.map(d => parseFloat(d.high)))
     : 0;
-  const minPrice = klineData.length > 0 
+  const minPrice = klineData.length > 0
     ? Math.min(...klineData.map(d => parseFloat(d.low)))
     : 0;
   const priceRange = maxPrice - minPrice || 1;
@@ -101,15 +101,15 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
             const close = parseFloat(candle.close);
             const high = parseFloat(candle.high);
             const low = parseFloat(candle.low);
-            
+
             const isGreen = close > open;
             const bodyHeight = Math.abs(close - open) / priceRange * 200;
             const wickTop = (high - Math.max(open, close)) / priceRange * 200;
             const wickBottom = (Math.min(open, close) - low) / priceRange * 200;
-            
+
             return (
               <div key={index} className="flex flex-col items-center" style={{ width: '100%' }}>
-                <div 
+                <div
                   className="w-0.5 bg-gray-400"
                   style={{ height: `${Math.max(wickTop, 0)}px` }}
                 />
@@ -117,7 +117,7 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
                   className={`w-3 ${isGreen ? 'bg-green-500' : 'bg-red-500'}`}
                   style={{ height: `${Math.max(bodyHeight, 1)}px` }}
                 />
-                <div 
+                <div
                   className="w-0.5 bg-gray-400"
                   style={{ height: `${Math.max(wickBottom, 0)}px` }}
                 />
