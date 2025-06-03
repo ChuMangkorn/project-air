@@ -16,8 +16,8 @@ interface PriceChartProps {
   symbol: string;
 }
 
-// เพิ่ม type definition สำหรับ Binance API response
-type BinanceKlineItem = [
+// เพิ่ม type definition ที่ชัดเจน
+type BinanceKlineResponse = [
   number,  // Open time
   string,  // Open price
   string,  // High price
@@ -44,10 +44,9 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
         const response = await fetch(
           `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${timeInterval}&limit=24`
         );
-        const data: BinanceKlineItem[] = await response.json();
+        const data: BinanceKlineResponse[] = await response.json();
         
-        // แก้ไขบรรทัดที่ 33 - เปลี่ยนจาก any[] เป็น BinanceKlineItem
-        const formattedData: KlineData[] = data.map((item: BinanceKlineItem) => ({
+        const formattedData: KlineData[] = data.map((item) => ({
           openTime: item[0],
           open: item[1],
           high: item[2],
@@ -72,7 +71,6 @@ const PriceChart: React.FC<PriceChartProps> = ({ symbol }) => {
     };
   }, [symbol, timeInterval]);
 
-  // ส่วนที่เหลือของ component...
   const maxPrice = klineData.length > 0 
     ? Math.max(...klineData.map(d => parseFloat(d.high)))
     : 0;
