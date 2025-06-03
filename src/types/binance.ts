@@ -23,6 +23,15 @@ export interface TradeDisplay {
 
 export interface TickerData {
   symbol: string;
+  lastPrice: string;  // เปลี่ยนจาก price เป็น lastPrice
+  priceChange: string;
+  priceChangePercent: string;
+  volume: string;
+}
+
+// เพิ่ม interface สำหรับ backward compatibility
+export interface TickerDataNormalized {
+  symbol: string;
   price: string;
   priceChange: string;
   priceChangePercent: string;

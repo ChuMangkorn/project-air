@@ -14,9 +14,24 @@ const POPULAR_SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT'];
 
 export default function Home() {
   const [selectedSymbol, setSelectedSymbol] = useState('BTCUSDT');
-  const { trades, isConnected, error } = useBinanceWebSocket(selectedSymbol);
-  const { tickers, loading } = useBinanceTicker(POPULAR_SYMBOLS);
+  
+  const { tickers, loading, error: tickerError } = useBinanceTicker(POPULAR_SYMBOLS);
+  const { trades, isConnected, error, reconnect } = useBinanceWebSocket(selectedSymbol);
 
+// ใน JSX
+<TradeList 
+  trades={trades} 
+  isConnected={isConnected} 
+  error={error}
+  onReconnect={reconnect}
+/>
+
+// เพิ่มใน JSX
+{tickerError && (
+  <div className="bg-yellow-500/20 border border-yellow-500/50 text-yellow-400 px-4 py-3 rounded mb-6">
+    ⚠️ {tickerError}
+  </div>
+)}
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-8">
