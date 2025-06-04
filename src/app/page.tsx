@@ -16,6 +16,9 @@ import MarketOverviewRealtime from '@/components/MarketOverviewRealtime';
 import OrderBookRealtime from '@/components/OrderBookRealtime';
 import TradesRealtime from '@/components/TradesRealtime';
 import TickerRealtime from '@/components/TickerRealtime';
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import MyComponent from "@/components/MyComponent";
+
 
 const POPULAR_SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT'];
 
@@ -29,15 +32,9 @@ export default function Home() {
   const isTablet = useMediaQuery('(max-width: 1024px)');
 
   return (
+
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-4 md:py-8">
-        <MarketOverviewRealtime />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-          <TickerRealtime />
-        <OrderBookRealtime symbol="BTCUSDT" />
-        <TradesRealtime symbol="BTCUSDT" />
-      </div>
         {/* Header - Responsive */}
         <header className={`mb-6 md:mb-8 ${isMobile ? 'text-center' : 'flex items-center justify-between'}`}>
           <div className={isMobile ? 'mb-4' : ''}>
@@ -51,12 +48,22 @@ export default function Home() {
           <DarkModeToggle />
         </header>
 
-        {/* Market Stats - Full width on mobile */}
-        <div className="mb-6 md:mb-8">
-          <MarketStats />
-        </div>
+        {/* Market Overview */}
+        <MarketOverviewRealtime />
 
-        {/* Symbol Selector - Full width on mobile */}
+        {/* Real-time Widgets */}
+        <ErrorBoundary>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            <TickerRealtime />
+            <OrderBookRealtime symbol="BTCUSDT" />
+            <TradesRealtime symbol="BTCUSDT" />
+          </div>
+        </ErrorBoundary>
+
+        {/* (Optional) Market Stats */}
+        {/* <MarketStats /> */}
+
+        {/* Symbol Selector */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">
             Select Trading Pair:
@@ -74,15 +81,14 @@ export default function Home() {
           </select>
         </div>
 
-        {/* Ticker Cards - Responsive Grid */}
+        {/* Ticker Cards */}
         <div className={`grid gap-4 mb-6 md:mb-8 ${isMobile
-            ? 'grid-cols-1'
-            : isTablet
-              ? 'grid-cols-2 lg:grid-cols-3'
-              : 'grid-cols-2 lg:grid-cols-5'
+          ? 'grid-cols-1'
+          : isTablet
+            ? 'grid-cols-2 lg:grid-cols-3'
+            : 'grid-cols-2 lg:grid-cols-5'
           }`}>
           {loading ? (
-            // แสดง Skeleton Cards แทน loading spinner
             Array.from({ length: 5 }).map((_, index) => (
               <SkeletonCard key={index} />
             ))
@@ -93,7 +99,7 @@ export default function Home() {
           )}
         </div>
 
-        {/* Chart and Order Book - Stack on mobile */}
+        {/* Chart and Order Book */}
         <div className={`gap-6 mb-6 md:mb-8 ${isMobile ? 'space-y-6' : 'grid grid-cols-1 lg:grid-cols-2'
           }`}>
           <PriceChart symbol={selectedSymbol} />
@@ -116,5 +122,6 @@ export default function Home() {
         />
       </div>
     </div>
+
   );
 }

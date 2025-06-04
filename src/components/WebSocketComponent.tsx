@@ -19,11 +19,7 @@ export function useBinanceTrades(symbol: string) {
 
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        if (isMounted) setTrades(prev => {
-  // เช็คว่า trade id ซ้ำหรือไม่ก่อน push
-  if (prev.length && prev[prev.length - 1].t === data.t) return prev;
-  return [...prev.slice(-99), data]; // เก็บ 100 รายการล่าสุด
-});
+        if (isMounted) setTrades(prev => [...prev.slice(-19), data]);
       };
 
       ws.onerror = (event) => {

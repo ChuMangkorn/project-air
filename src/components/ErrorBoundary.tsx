@@ -1,54 +1,24 @@
-'use client';
+import React from "react";
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-
-interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
-}
-
-interface State {
-  hasError: boolean;
-  error?: Error;
-}
-
-class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false
-  };
-
-  public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+export class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
   }
-
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+  static getDerivedStateFromError() {
+    return { hasError: true };
   }
-
-  public render() {
+  componentDidCatch(error: any, info: any) {
+    console.error("ErrorBoundary caught:", error, info);
+  }
+  render() {
     if (this.state.hasError) {
-      return this.props.fallback || (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <div className="text-center p-8">
-            <h2 className="text-2xl font-bold text-red-500 mb-4">
-              Oops! Something went wrong
-            </h2>
-            <p className="text-muted-foreground mb-4">
-              {this.state.error?.message || 'An unexpected error occurred'}
-            </p>
-            <button
-              onClick={() => this.setState({ hasError: false, error: undefined })}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90"
-            >
-              Try Again
-            </button>
-          </div>
+      return (
+        <div className="bg-red-100 text-red-700 border border-red-300 rounded p-4 my-6">
+          เกิดข้อผิดพลาด กรุณารีเฟรชหน้าหรือแจ้งผู้ดูแลระบบ
         </div>
       );
     }
-
     return this.props.children;
   }
 }
-
-export default ErrorBoundary;
