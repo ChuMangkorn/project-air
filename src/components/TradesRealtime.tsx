@@ -15,15 +15,23 @@ export default function TradesRealtime({ symbol = "BTCUSDT" }) {
 
   return (
     <div className="bg-card text-card-foreground rounded-lg shadow-lg p-6 border border-border">
-      <h3 className="text-lg font-semibold mb-4">Order Book ({symbol})</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold">Order Book ({symbol})</h3>
+        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+      </div>
+      {wsError && (
+        <div className="bg-red-500/20 border border-red-500/50 text-red-400 px-3 py-2 rounded mb-4 text-sm">
+          {wsError}
+        </div>
+      )}
       {/* ...header และ error... */}
-      <div className="overflow-y-auto max-h-96">
-        <table className="w-full text-xs">
-          <thead>
+      <div className="h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-muted">
+        <table className="w-full text-sm">
+          <thead className="sticky top-0 bg-card border-b border-border z-10">
             <tr>
-              <th className="text-left py-1 text-muted-foreground font-medium">Time</th>
-              <th className="text-right py-1 text-muted-foreground font-medium">Price</th>
-              <th className="text-right py-1 text-muted-foreground font-medium">Amount</th>
+              <th className="text-left py-2 text-muted-foreground font-medium">Time</th>
+              <th className="text-right py-2 text-muted-foreground font-medium">Price</th>
+              <th className="text-right py-2 text-muted-foreground font-medium">Amount</th>
             </tr>
           </thead>
           <tbody>
@@ -33,13 +41,13 @@ export default function TradesRealtime({ symbol = "BTCUSDT" }) {
               const isSell = t.m === true || t.m === "true";
               return (
                 <tr key={t.t} className="border-b border-border/40 hover:bg-muted/50 relative">
-                  <td className="py-1 text-muted-foreground">
+                  <td className="py-2 text-muted-foreground">
                     {t.T ? new Date(t.T).toLocaleTimeString() : "-"}
                   </td>
-                  <td className={`text-right py-1 font-mono ${isSell ? 'text-red-500' : 'text-green-500'}`}>
+                  <td className={`text-right py-2 font-mono ${isSell ? 'text-red-500' : 'text-green-500'}`}>
                     ${price.toFixed(2)}
                   </td>
-                  <td className="text-right py-1 font-mono text-muted-foreground">
+                  <td className="text-right py-2 font-mono text-muted-foreground">
                     {amount.toFixed(6)}
                   </td>
                 </tr>
@@ -48,6 +56,6 @@ export default function TradesRealtime({ symbol = "BTCUSDT" }) {
           </tbody>
         </table>
       </div>
-    </div>
+    </div >
   );
 }
