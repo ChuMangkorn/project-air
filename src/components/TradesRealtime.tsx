@@ -16,7 +16,7 @@ export default function TradesRealtime({ symbol = "BTCUSDT" }) {
   return (
     <div className="bg-card text-card-foreground rounded-lg shadow-lg p-6 border border-border">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Order Book ({symbol})</h3>
+        <h3 className="text-lg font-semibold">Market Trade({symbol})</h3>
         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
       </div>
       {wsError && (
